@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_colors.dart';
 import '../widgets/home_widgets.dart';
 import 'detail_beasiswa_screen.dart';
-import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
 final VoidCallback? onSearchTap;
