@@ -4,6 +4,7 @@ import '../utils/app_colors.dart';
 import 'admin_home_screen.dart';
 import 'admin_add_news_screen.dart';
 import 'admin_profile_screen.dart';
+import 'search_screen.dart';
 
 class AdminMainNavScreen extends StatefulWidget {
   const AdminMainNavScreen({super.key});
@@ -14,23 +15,37 @@ class AdminMainNavScreen extends StatefulWidget {
 
 class _AdminMainNavScreenState extends State<AdminMainNavScreen> {
   int index = 0;
-
-  final pages = const [
-    AdminHomeScreen(),
-    AdminAddNewsScreen(),
-    AdminProfileScreen(),
-  ];
+  bool showSearch = false;
 
   void changePage(int newIndex) {
     setState(() {
       index = newIndex;
+      showSearch = false;
+    });
+  }
+
+  void openSearch() {
+    setState(() {
+      showSearch = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget currentPage;
+
+    if (showSearch) {
+      currentPage = const SearchScreen(isAdmin: true);
+    } else {
+      currentPage = [
+        AdminHomeScreen(onSearchTap: openSearch),
+        const AdminAddNewsScreen(),
+        const AdminProfileScreen(),
+      ][index];
+    }
+
     return Scaffold(
-      body: pages[index],
+      body: currentPage,
       bottomNavigationBar: Container(
         height: 68,
         padding: const EdgeInsets.only(bottom: 6),
@@ -49,17 +64,17 @@ class _AdminMainNavScreenState extends State<AdminMainNavScreen> {
           children: [
             AdminNavItem(
               icon: Icons.home_rounded,
-              active: index == 0,
+              active: !showSearch && index == 0,
               onTap: () => changePage(0),
             ),
             AdminNavItem(
               icon: Icons.add_box_rounded,
-              active: index == 1,
+              active: !showSearch && index == 1,
               onTap: () => changePage(1),
             ),
             AdminNavItem(
               icon: Icons.person_rounded,
-              active: index == 2,
+              active: !showSearch && index == 2,
               onTap: () => changePage(2),
             ),
           ],

@@ -4,9 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_colors.dart';
 import '../widgets/home_widgets.dart';
 import 'detail_beasiswa_screen.dart';
+import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+final VoidCallback? onSearchTap;
+  const HomeScreen({
+    super.key,
+     this.onSearchTap,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -14,9 +19,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String selected = 'All';
-  String searchText = '';
-
-  final TextEditingController searchController = TextEditingController();
 
   final List<String> regions = [
     'All',
@@ -27,26 +29,14 @@ class _HomeScreenState extends State<HomeScreen> {
     'Kaltara',
   ];
 
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
-
   List<Map<String, String>> filterData(List<Map<String, String>> data) {
-    var result = selected == 'All'
-        ? data
-        : data.where((e) => e['region'] == selected).toList();
-
-    if (searchText.isNotEmpty) {
-      result = result.where((item) {
-        final title = item['title']!.toLowerCase();
-        return title.contains(searchText);
-      }).toList();
-    }
-
-    return result;
+    if (selected == 'All') return data;
+    return data.where((e) => e['region'] == selected).toList();
   }
+
+ void openSearch() {
+  widget.onSearchTap?.call();
+}
 
   void openDetail(Map<String, String> item) {
     Navigator.push(
@@ -116,175 +106,149 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget searchBar() {
-    return TextField(
-      controller: searchController,
-      onChanged: (value) {
-        setState(() {
-          searchText = value.toLowerCase();
-        });
-      },
-      decoration: InputDecoration(
-        hintText: 'search for info',
-        prefixIcon: const Icon(Icons.search),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 12,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF72C386),
-              Color(0xFFA8DDB4),
-              Color(0xFFEFFFF6),
-            ],
-            stops: [0.0, 0.45, 1.0],
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF72C386),
+            Color(0xFFA8DDB4),
+            Color(0xFFEFFFF6),
+          ],
+          stops: [0.0, 0.45, 1.0],
         ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 18, 16, 100),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const HomeHeader(),
-                const SizedBox(height: 20),
-                const ScholarshipBanner(),
-                const SizedBox(height: 18),
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HomeHeader(
+                onSearchTap: openSearch,
+              ),
 
-                searchBar(),
+              const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
+              const ScholarshipBanner(),
 
-                SizedBox(
-                  height: 42,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: regions.length,
-                    itemBuilder: (context, index) {
-                      final r = regions[index];
-                      final active = selected == r;
+              const SizedBox(height: 20),
 
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 27),
-                        child: GestureDetector(
-                          onTap: () => setState(() => selected = r),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 22),
-                            height: 38,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: active
-                                  ? AppColors.primary.withOpacity(0.9)
-                                  : AppColors.primary2.withOpacity(0.75),
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: active
-                                  ? [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(.18),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ]
-                                  : [],
-                            ),
-                            child: Text(
-                              r,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+              SizedBox(
+                height: 42,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: regions.length,
+                  itemBuilder: (context, index) {
+                    final r = regions[index];
+                    final active = selected == r;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 27),
+                      child: GestureDetector(
+                        onTap: () => setState(() => selected = r),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 22),
+                          height: 38,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: active
+                                ? AppColors.primary.withOpacity(0.9)
+                                : AppColors.primary2.withOpacity(0.75),
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: active
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(.18),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          child: Text(
+                            r,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                const Text(
-                  'New',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('beasiswa')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Padding(
-                        padding: EdgeInsets.only(top: 60),
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return emptyData();
-                    }
-
-                    final data = snapshot.data!.docs.map((e) {
-                      final m = e.data() as Map<String, dynamic>;
-
-                      return {
-                        'id': e.id,
-                        'title': '${m['title'] ?? 'Judul Beasiswa'}',
-                        'desc': '${m['desc'] ?? 'Deskripsi singkat'}',
-                        'detail': '${m['detail'] ?? 'Belum ada detail'}',
-                        'region': '${m['region'] ?? 'All'}',
-                        'imageUrl': '${m['imageUrl'] ?? ''}',
-                      };
-                    }).toList();
-
-                    final filtered = filterData(data);
-
-                    if (filtered.isEmpty) {
-                      return emptyData();
-                    }
-
-                    return Column(
-                      children: filtered.map((item) {
-                        return GestureDetector(
-                          onTap: () => openDetail(item),
-                          child: NewsCard(
-                            title: item['title'] ?? '',
-                            desc: item['desc'] ?? '',
-                            imageUrl: item['imageUrl'] ?? '',
-                            onBookmarkTap: () => saveBeasiswa(item),
-                          ),
-                        );
-                      }).toList(),
+                      ),
                     );
                   },
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                'New',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('beasiswa')
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.only(top: 60),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return emptyData();
+                  }
+
+                  final data = snapshot.data!.docs.map((e) {
+                    final m = e.data() as Map<String, dynamic>;
+
+                    return {
+                      'id': e.id,
+                      'title': '${m['title'] ?? 'Judul Beasiswa'}',
+                      'desc': '${m['desc'] ?? 'Deskripsi singkat'}',
+                      'detail': '${m['detail'] ?? 'Belum ada detail'}',
+                      'region': '${m['region'] ?? 'All'}',
+                      'imageUrl': '${m['imageUrl'] ?? ''}',
+                    };
+                  }).toList();
+
+                  final filtered = filterData(data);
+
+                  if (filtered.isEmpty) {
+                    return emptyData();
+                  }
+
+                  return Column(
+                    children: filtered.map((item) {
+                      return GestureDetector(
+                        onTap: () => openDetail(item),
+                        child: NewsCard(
+                          title: item['title'] ?? '',
+                          desc: item['desc'] ?? '',
+                          imageUrl: item['imageUrl'] ?? '',
+                          onBookmarkTap: () => saveBeasiswa(item),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),

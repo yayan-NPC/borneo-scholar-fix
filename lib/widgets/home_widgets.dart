@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key});
+  final VoidCallback onSearchTap;
+
+  const HomeHeader({
+    super.key,
+    required this.onSearchTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +32,7 @@ class HomeHeader extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(width: 12),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,9 +45,7 @@ class HomeHeader extends StatelessWidget {
                         fontSize: 18,
                       ),
                     ),
-
                     SizedBox(height: 2),
-
                     Text(
                       'Sudah memikirkan apa yg ingin kamu\ncapai dimasa depan?',
                       style: TextStyle(
@@ -58,30 +59,32 @@ class HomeHeader extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 14),
-
-          Container(
-            height: 45,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(26),
-            ),
-            child: const TextField(
-              style: TextStyle(fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'search for info',
-                hintStyle: TextStyle(
-                  fontSize: 13,
-                  color: Colors.black54,
-                ),
-                border: InputBorder.none,
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.black,
-                  size: 28,
-                ),
-                contentPadding: EdgeInsets.only(top: 12),
+          GestureDetector(
+            onTap: onSearchTap,
+            child: Container(
+              height: 45,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(26),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    color: Colors.black,
+                    size: 28,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'search for info',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -271,7 +274,6 @@ class NewsCard extends StatelessWidget {
               ),
             ],
           ),
-
           if (showBookmark)
             Positioned(
               right: 2,
