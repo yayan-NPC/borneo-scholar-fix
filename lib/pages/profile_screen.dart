@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/app_colors.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/profile_widgets.dart';
+import 'edit_profile_screen.dart';
 import 'login_screen.dart';
+import 'main_nav_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -16,8 +18,28 @@ class ProfileScreen extends StatelessWidget {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
       (_) => false,
+    );
+  }
+
+  void goToEditProfile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EditProfileScreen(),
+      ),
+    );
+  }
+
+  void goToHome(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MainNavScreen(),
+      ),
     );
   }
 
@@ -42,12 +64,7 @@ class ProfileScreen extends StatelessWidget {
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  22,
-                  20,
-                  22,
-                  20,
-                ),
+                padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
                 child: Column(
                   children: [
                     Align(
@@ -57,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                           Icons.arrow_back_rounded,
                           size: 32,
                         ),
-                        onPressed: () {},
+                        onPressed: () => goToHome(context),
                       ),
                     ),
 
@@ -111,7 +128,7 @@ class ProfileScreen extends StatelessWidget {
                           ProfileMenu(
                             icon: Icons.account_circle_outlined,
                             title: 'Edit Profile',
-                            onTap: () {},
+                            onTap: () => goToEditProfile(context),
                           ),
 
                           const Divider(height: 18),

@@ -3,9 +3,31 @@ import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 import '../widgets/app_logo.dart';
 import '../widgets/profile_widgets.dart';
+import 'edit_profile_screen.dart';
+import 'login_screen.dart';
+import '../pages/admin_main_nav_screen.dart';
 
 class AdminProfileScreen extends StatelessWidget {
   const AdminProfileScreen({super.key});
+
+  void _goToEditProfile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EditProfileScreen(),
+      ),
+    );
+  }
+
+  void _logout(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +58,27 @@ class AdminProfileScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
+
                     Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const AdminMainNavScreen(),
+                            ),
+                          );
+                        },
                         icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          size: 32,
+                          Icons.keyboard_backspace_rounded,
+                          size: 29,
                         ),
-                        onPressed: () {},
                       ),
                     ),
+
+                    const SizedBox(height: 6),
 
                     const CircleAvatar(
                       radius: 47,
@@ -54,6 +87,7 @@ class AdminProfileScreen extends StatelessWidget {
                         'A',
                         style: TextStyle(
                           fontSize: 52,
+                          fontWeight: FontWeight.w500,
                           color: Color(0xFF2E1748),
                         ),
                       ),
@@ -66,6 +100,7 @@ class AdminProfileScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
+                        color: Colors.black,
                       ),
                     ),
 
@@ -97,7 +132,8 @@ class AdminProfileScreen extends StatelessWidget {
                           ProfileMenu(
                             icon: Icons.account_circle_outlined,
                             title: 'Edit Profile',
-                            onTap: () {},
+                            onTap: () =>
+                                _goToEditProfile(context),
                           ),
 
                           const Divider(height: 18),
@@ -105,7 +141,7 @@ class AdminProfileScreen extends StatelessWidget {
                           ProfileMenu(
                             icon: Icons.logout_rounded,
                             title: 'Logout',
-                            onTap: () {},
+                            onTap: () => _logout(context),
                           ),
                         ],
                       ),

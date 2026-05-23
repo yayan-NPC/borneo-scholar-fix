@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../utils/app_colors.dart';
+import '../pages/admin_main_nav_screen.dart';
 
 class AdminAddNewsScreen extends StatefulWidget {
   const AdminAddNewsScreen({super.key});
@@ -205,10 +206,23 @@ class _AdminAddNewsScreenState extends State<AdminAddNewsScreen> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.keyboard_backspace_rounded, size: 29),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminMainNavScreen(),
+                          ),
+                        );
+                      },
+
+                      icon: const Icon(
+                        Icons.keyboard_backspace_rounded,
+                        size: 29,
+                      ),
                     ),
+
                     const SizedBox(width: 8),
+
                     const Text(
                       'Add Beasiswa',
                       style: TextStyle(
