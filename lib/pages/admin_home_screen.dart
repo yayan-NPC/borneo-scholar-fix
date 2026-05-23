@@ -13,6 +13,9 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   String selectedCategory = 'All';
+  String searchText = '';
+
+  final TextEditingController searchController = TextEditingController();
 
   final List<String> categories = [
     'All',
@@ -23,13 +26,29 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     'Kaltara',
   ];
 
-  List<QueryDocumentSnapshot> filterDocs(List<QueryDocumentSnapshot> docs) {
-    if (selectedCategory == 'All') return docs;
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
-    return docs.where((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      return '${data['region'] ?? ''}' == selectedCategory;
-    }).toList();
+  List<QueryDocumentSnapshot> filterDocs(List<QueryDocumentSnapshot> docs) {
+    var result = selectedCategory == 'All'
+        ? docs
+        : docs.where((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return '${data['region'] ?? ''}' == selectedCategory;
+          }).toList();
+
+    if (searchText.isNotEmpty) {
+      result = result.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final title = '${data['title'] ?? ''}'.toLowerCase();
+        return title.contains(searchText);
+      }).toList();
+    }
+
+    return result;
   }
 
   Future<void> deleteData(String id) async {
@@ -100,6 +119,31 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
+  Widget searchBar() {
+    return TextField(
+      controller: searchController,
+      onChanged: (value) {
+        setState(() {
+          searchText = value.toLowerCase();
+        });
+      },
+      decoration: InputDecoration(
+        hintText: 'search for info',
+        prefixIcon: const Icon(Icons.search),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 12,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,7 +169,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 const HomeHeader(),
                 const SizedBox(height: 20),
                 const ScholarshipBanner(),
+                const SizedBox(height: 18),
+
+                searchBar(),
+
                 const SizedBox(height: 20),
+
                 SizedBox(
                   height: 42,
                   child: ListView.builder(
@@ -174,7 +223,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     },
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
                 const Text(
                   'Data Beasiswa',
                   style: TextStyle(
@@ -182,7 +233,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
+
                 const SizedBox(height: 12),
+
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('beasiswa')
@@ -203,7 +256,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     final docs = filterDocs(snapshot.data!.docs);
 
                     if (docs.isEmpty) {
-                      return emptyData('Belum ada data di kategori ini');
+                      return emptyData('Data tidak ditemukan');
                     }
 
                     return Column(

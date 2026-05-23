@@ -14,6 +14,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String selected = 'All';
+  String searchText = '';
+
+  final TextEditingController searchController = TextEditingController();
 
   final List<String> regions = [
     'All',
@@ -24,9 +27,25 @@ class _HomeScreenState extends State<HomeScreen> {
     'Kaltara',
   ];
 
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   List<Map<String, String>> filterData(List<Map<String, String>> data) {
-    if (selected == 'All') return data;
-    return data.where((e) => e['region'] == selected).toList();
+    var result = selected == 'All'
+        ? data
+        : data.where((e) => e['region'] == selected).toList();
+
+    if (searchText.isNotEmpty) {
+      result = result.where((item) {
+        final title = item['title']!.toLowerCase();
+        return title.contains(searchText);
+      }).toList();
+    }
+
+    return result;
   }
 
   void openDetail(Map<String, String> item) {
@@ -97,6 +116,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget searchBar() {
+    return TextField(
+      controller: searchController,
+      onChanged: (value) {
+        setState(() {
+          searchText = value.toLowerCase();
+        });
+      },
+      decoration: InputDecoration(
+        hintText: 'search for info',
+        prefixIcon: const Icon(Icons.search),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 12,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
+          borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,6 +166,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 const HomeHeader(),
                 const SizedBox(height: 20),
                 const ScholarshipBanner(),
+                const SizedBox(height: 18),
+
+                searchBar(),
+
                 const SizedBox(height: 20),
 
                 SizedBox(
