@@ -196,7 +196,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               const SizedBox(height: 20),
 
               const Text(
-                'Data Beasiswa',
+                'New',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
