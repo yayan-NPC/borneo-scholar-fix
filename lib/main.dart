@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
+
 import 'pages/main_nav_screen.dart';
 import 'pages/admin_main_nav_screen.dart';
+import 'pages/splash_screen.dart';
+
 import 'utils/app_colors.dart';
 
 void main() async {
@@ -24,15 +27,20 @@ class BorneoScholarApp extends StatelessWidget {
     return MaterialApp(
       title: 'Borneo Scholar',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         useMaterial3: true,
         fontFamily: 'Arial',
+
         scaffoldBackgroundColor: AppColors.bg,
+
         colorScheme: ColorScheme.fromSeed(
           seedColor: AppColors.primary,
         ),
       ),
+
       home: const MainNavScreen(),
+
       routes: {
         '/user': (_) => const MainNavScreen(),
         '/admin': (_) => const AdminMainNavScreen(),

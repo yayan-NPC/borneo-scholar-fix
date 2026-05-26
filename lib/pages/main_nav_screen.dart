@@ -95,7 +95,7 @@ class NavItem extends StatelessWidget {
     required this.active,
     required this.onTap,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     return InkWell(
