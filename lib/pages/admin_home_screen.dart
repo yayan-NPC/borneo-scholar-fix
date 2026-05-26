@@ -25,7 +25,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     'Kaltim',
     'Kalteng',
     'Kalbar',
-    'Kaltara',
   ];
 
   void openSearch() {

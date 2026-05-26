@@ -32,7 +32,7 @@ class BorneoScholarApp extends StatelessWidget {
           seedColor: AppColors.primary,
         ),
       ),
-      home: const MainNavScreen(),
+      home: const AdminMainNavScreen(),
       routes: {
         '/user': (_) => const MainNavScreen(),
         '/admin': (_) => const AdminMainNavScreen(),

@@ -12,17 +12,83 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   Future<void> logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-
-    if (!context.mounted) return;
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const LoginScreen(),
-      ),
-      (_) => false,
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: const BorderSide(
+              color: Color(0xFFD9D9D9),
+              width: 2,
+            ),
+          ),
+          title: const Text(
+            'Want to Logout?',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(105, 45),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEB3B00),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(105, 45),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
+
+    if (result == true) {
+      await FirebaseAuth.instance.signOut();
+
+      if (!context.mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ),
+        (_) => false,
+      );
+    }
   }
 
   void goToEditProfile(BuildContext context) {
@@ -60,7 +126,6 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
           ),
-
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -77,7 +142,6 @@ class ProfileScreen extends StatelessWidget {
                         onPressed: () => goToHome(context),
                       ),
                     ),
-
                     const CircleAvatar(
                       radius: 47,
                       backgroundColor: Color(0xFF9CFF9B),
@@ -89,9 +153,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 18),
-
                     const Text(
                       'Nazriel Ilham',
                       style: TextStyle(
@@ -99,13 +161,9 @@ class ProfileScreen extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-
                     const SizedBox(height: 22),
-
                     const AppLogo(size: 65),
-
                     const SizedBox(height: 16),
-
                     Container(
                       width: 298,
                       padding: const EdgeInsets.symmetric(
@@ -130,9 +188,7 @@ class ProfileScreen extends StatelessWidget {
                             title: 'Edit Profile',
                             onTap: () => goToEditProfile(context),
                           ),
-
                           const Divider(height: 18),
-
                           ProfileMenu(
                             icon: Icons.logout_rounded,
                             title: 'Logout',
