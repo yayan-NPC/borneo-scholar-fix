@@ -21,37 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController searchController = TextEditingController();
 
   String keyword = '';
-
   final List<String> recentSearches = [];
-
-  final List<Map<String, String>> recentData = [
-    {
-      'title': 'Universitas Lambung Mangkurat',
-      'desc':
-          'Beasiswa diberikan kepada mahasiswa aktif S1 dengan ketentuan semester yang menyesuaikan jenis beasiswa.',
-      'detail':
-          'Universitas Lambung Mangkurat menyediakan berbagai program bantuan pendidikan untuk mahasiswa aktif yang memenuhi syarat administrasi dan akademik.',
-      'region': 'Kalsel',
-      'imageUrl': '',
-    },
-    {
-      'title': 'Universitas Muhammadiyah',
-      'desc':
-          'Universitas ini menyediakan beberapa jenis beasiswa, seperti KIP Kuliah dan beasiswa prestasi.',
-      'detail':
-          'Beasiswa ini diberikan untuk membantu mahasiswa yang memenuhi syarat akademik maupun administrasi.',
-      'region': 'Kalteng',
-      'imageUrl': '',
-    },
-    {
-      'title': 'Universitas Palangkaraya',
-      'desc': 'Kampus ini menyediakan informasi beasiswa untuk mahasiswanya.',
-      'detail':
-          'Biasanya mencakup beasiswa pemerintah, prestasi, dan bantuan pendidikan.',
-      'region': 'Kalteng',
-      'imageUrl': '',
-    },
-  ];
 
   @override
   void dispose() {
@@ -94,7 +64,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void addRecentSearch(String value) {
     final text = value.trim();
-
     if (text.isEmpty) return;
 
     recentSearches.removeWhere(
@@ -117,24 +86,8 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  List<Map<String, String>> getFilteredRecent() {
-    if (keyword.isEmpty) return recentData;
-
-    return recentData.where((item) {
-      final title = item['title']!.toLowerCase();
-      final desc = item['desc']!.toLowerCase();
-      final region = item['region']!.toLowerCase();
-
-      return title.contains(keyword) ||
-          desc.contains(keyword) ||
-          region.contains(keyword);
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final data = getFilteredRecent();
-
     return Scaffold(
       backgroundColor: const Color(0xFFEFFFF6),
       body: Container(
@@ -176,7 +129,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 9),
+
                     Expanded(
                       child: Container(
                         height: 45,
@@ -257,16 +212,74 @@ class _SearchScreenState extends State<SearchScreen> {
 
                         const SizedBox(height: 16),
 
-                        if (data.isEmpty)
-                          const Center(
-                            child: Text('Data tidak ditemukan'),
-                          )
-                        else
-                          Column(
-                            children: data.map((item) {
-                              return _searchCard(item);
-                            }).toList(),
-                          ),
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('beasiswa')
+                              .orderBy('createdAt', descending: true)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 30),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return const Center(
+                                child: Text('Gagal mengambil data'),
+                              );
+                            }
+
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return const Center(
+                                child: Text('Belum ada data'),
+                              );
+                            }
+
+                            final data = snapshot.data!.docs.where((doc) {
+                              final d = doc.data() as Map<String, dynamic>;
+
+                              final title =
+                                  '${d['title'] ?? ''}'.toLowerCase();
+                              final desc =
+                                  '${d['desc'] ?? ''}'.toLowerCase();
+                              final region =
+                                  '${d['region'] ?? ''}'.toLowerCase();
+
+                              if (keyword.isEmpty) return true;
+
+                              return title.contains(keyword) ||
+                                  desc.contains(keyword) ||
+                                  region.contains(keyword);
+                            }).toList();
+
+                            if (data.isEmpty) {
+                              return const Center(
+                                child: Text('Data tidak ditemukan'),
+                              );
+                            }
+
+                            return Column(
+                              children: data.map((doc) {
+                                final item =
+                                    doc.data() as Map<String, dynamic>;
+
+                                return _searchCard({
+                                  'title': '${item['title'] ?? ''}',
+                                  'desc': '${item['desc'] ?? ''}',
+                                  'detail': '${item['detail'] ?? ''}',
+                                  'region': '${item['region'] ?? ''}',
+                                  'imageUrl': '${item['imageUrl'] ?? ''}',
+                                });
+                              }).toList(),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -280,47 +293,49 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _recentItem(String title) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 19),
-    child: Row(
-      children: [
-        const Icon(
-          Icons.access_time_rounded,
-          size: 24,
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 19),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.access_time_rounded,
+            size: 24,
+          ),
 
-        const SizedBox(width: 13),
+          const SizedBox(width: 13),
 
-        Expanded(
-          child: GestureDetector(
-            onTap: () => useRecentSearch(title),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
+          Expanded(
+            child: GestureDetector(
+              onTap: () => useRecentSearch(title),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
-        ),
 
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              recentSearches.remove(title);
-            });
-          },
-          child: const Icon(
-            Icons.close_rounded,
-            size: 20,
-            color: Colors.black54,
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                recentSearches.remove(title);
+              });
+            },
+            child: const Icon(
+              Icons.close_rounded,
+              size: 20,
+              color: Colors.black54,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
-  Widget _searchCard(Map<String, String> item) {
+  Widget _searchCard(Map<String, dynamic> item) {
+    final imageUrl = '${item['imageUrl'] ?? ''}';
+
     return GestureDetector(
       onTap: () => openDetail(item),
       child: Container(
@@ -343,10 +358,17 @@ class _SearchScreenState extends State<SearchScreen> {
               width: 70,
               height: 88,
               color: const Color(0xFFE8F5EC),
-              child: item['imageUrl']!.isNotEmpty
+              child: imageUrl.isNotEmpty
                   ? Image.network(
-                      item['imageUrl']!,
+                      imageUrl,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.image_outlined,
+                          size: 35,
+                          color: Colors.black38,
+                        );
+                      },
                     )
                   : const Icon(
                       Icons.image_outlined,
@@ -354,7 +376,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       color: Colors.black38,
                     ),
             ),
+
             const SizedBox(width: 10),
+
             Expanded(
               child: SizedBox(
                 height: 88,
@@ -362,7 +386,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item['title'] ?? '',
+                      '${item['title'] ?? ''}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -371,9 +395,11 @@ class _SearchScreenState extends State<SearchScreen> {
                         decoration: TextDecoration.underline,
                       ),
                     ),
+
                     const SizedBox(height: 6),
+
                     Text(
-                      item['desc'] ?? '',
+                      '${item['desc'] ?? ''}',
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -381,7 +407,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         height: 1.1,
                       ),
                     ),
+
                     const Spacer(),
+
                     Align(
                       alignment: Alignment.bottomRight,
                       child: Icon(
