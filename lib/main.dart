@@ -39,7 +39,7 @@ class BorneoScholarApp extends StatelessWidget {
         ),
       ),
 
-      home: const MainNavScreen(),
+      home: const SplashScreen(),
 
       routes: {
         '/user': (_) => const MainNavScreen(),
